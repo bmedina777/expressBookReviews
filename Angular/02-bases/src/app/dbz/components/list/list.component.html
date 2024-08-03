@@ -6,11 +6,14 @@
         let isFirst = first; 
         let isLast = last;
         let isEven = even;
-        let isOdd = odd;" class="list-group-item" [ngClass]=" { 'list-group-item-dark': isLast, 'list-group-item-primary': isEven} ">
-        <span class="text-primary "> {{i+1}}  </span>
-        <span>{{character.name}} -</span>
-        <strong>Power: </strong>
-        <span>{{character.power}}</span>
+        let isOdd = odd;" class="list-group-item d-flex justify-content-between align-items-center" [ngClass]=" { 'list-group-item-dark': isLast, 'list-group-item-primary': isEven} ">
+        <div>
+            <span class="text-primary "> {{i+1}}  </span>
+            <span>{{character.name}} -</span>
+            <strong>Power: </strong>
+            <span>{{character.power}}</span>
+        </div>
+        <button class="btn btn-danger" (click)="onDeleteCharacter(character.id!)">X</button>
         <!--<span>Es Par : {{isEven}}</span>
         <span>Es INPar : {{isOdd}}</span>
         <span> Es el Primero: {{isFirst}} </span>
