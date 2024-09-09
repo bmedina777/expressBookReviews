@@ -4,12 +4,17 @@
     <div class="col">
         <!-- searchbox -->
         Busqueda
-        <shared-search-box (onValue)="searchByCapital($event)" placeholder="BUscar por capital"></shared-search-box>
+        <!--(onValue)="searchByCapital($event)"-->
+        <shared-search-box (onDebounce)="searchByCapital($event)" placeholder="Buscar por capital"></shared-search-box>
 
     </div>
 </div>
 <div class="row">
-    <countries-table [countries]="countries"></countries-table>
+    <div class="col">
+        <hr>
+        <shared-loading-spinner *ngIf="isLoading"></shared-loading-spinner>
+        <countries-table [countries]="countries"></countries-table>
+    </div>
     <!-- <div class="col">
         <ul>
             <li *ngFor="let country of countries">
