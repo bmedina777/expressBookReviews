@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PrimeNGConfig } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -6,6 +7,12 @@ import { Component } from '@angular/core';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  constructor(private primegConfig: PrimeNGConfig){}
+  ngOnInit()
+  {
+    this.primegConfig.ripple=true;
+  }
+
   public title = 'BraYaN MeDinA';
 
 }
