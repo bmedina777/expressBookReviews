@@ -1,0 +1,8 @@
+{
+    "name": "Temperature",
+    "description": "Clima de EUA",
+    "authors": "Brayan Medina",
+    "version": "1.0.0",
+    "main": "mynodeserver.js",
+    "dependencies": {"express": "4.21.0"}
+}
