@@ -6,19 +6,20 @@ const genl_routes = require('./router/general.js').general;
 
 const app = express();
 
+// Middleware para parsear JSON
 app.use(express.json());
 
-app.use("/customer", session({
-    secret: "fingerprint_customer", // Clave secreta para la sesión
-    resave: true,
-    saveUninitialized: true
+// Middleware de sesión
+app.use(session({
+    secret: 'fingerprint_customer', // Clave secreta para la sesión
+    resave: false, // No guardar la sesión si no ha sido modificada
+    saveUninitialized: true, // Guardar sesiones no inicializadas
+    cookie: { secure: false } // Asegúrate de que 'secure' sea false si no usas HTTPS
 }));
 
+// Middleware de autenticación
 app.use("/customer/auth/*", function auth(req, res, next) {
-    if (req.headers['authorization']) {
-        const token = req.session.token || req.headers['authorization'].split(' ')[1];
-    }
-    //const token = req.session.token || req.headers['authorization'] ? .split(' ')[1];
+    const token = req.session.token || req.headers['authorization'] ? .split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ message: 'Token no encontrado. Inicia sesión primero.' });
@@ -34,10 +35,11 @@ app.use("/customer/auth/*", function auth(req, res, next) {
     });
 });
 
+// Ruta de login
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    if (username === 'user' && password === 'password') {
+    if (username === 'bmedina' && password === '123') {
         const token = jwt.sign({ username }, 'fingerprint_customer', { expiresIn: '1h' });
 
         req.session.token = token;
@@ -50,8 +52,7 @@ app.post('/login', (req, res) => {
 
 const PORT = 5000;
 
-
 app.use("/customer", customer_routes);
 app.use("/", genl_routes);
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Servidor corriendo en el puerto ${PORT}`));

@@ -2,9 +2,10 @@ const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
+const jwt = require('jsonwebtoken');
 const public_users = express.Router();
 
-
+// Ruta para registro de usuarios
 public_users.post("/register", (req, res) => {
     const { username, password } = req.body;
 
@@ -22,14 +23,12 @@ public_users.post("/register", (req, res) => {
     return res.status(200).json({ message: "User successfully registered" });
 });
 
-
-// Get the book list available in the shop
+// Obtener lista de libros
 public_users.get('/', function(req, res) {
-    //Write your code here
-    return res.status(300).json(books);
+    return res.status(200).json(books);
 });
 
-// Get book details based on ISBN
+// Obtener detalles de un libro basado en su ISBN
 public_users.get('/isbn/:isbn', function(req, res) {
     const isbn = req.params.isbn;
     const book = books[isbn];
@@ -41,8 +40,7 @@ public_users.get('/isbn/:isbn', function(req, res) {
     }
 });
 
-
-// Get book details based on author
+// Obtener libros basados en el autor
 public_users.get('/author/:author', function(req, res) {
     const author = req.params.author;
     const filteredBooks = Object.values(books).filter(book => book.author.toLowerCase() === author.toLowerCase());
@@ -54,8 +52,7 @@ public_users.get('/author/:author', function(req, res) {
     }
 });
 
-
-// Get all books based on title
+// Obtener libros basados en el título
 public_users.get('/title/:title', function(req, res) {
     const title = req.params.title.toLowerCase();
     const filteredBooks = Object.values(books).filter(book => book.title.toLowerCase().includes(title));
@@ -67,8 +64,7 @@ public_users.get('/title/:title', function(req, res) {
     }
 });
 
-
-//  Get book review
+// Obtener las reseñas de un libro
 public_users.get('/review/:isbn', function(req, res) {
     const isbn = req.params.isbn;
     const book = books[isbn];
@@ -80,5 +76,64 @@ public_users.get('/review/:isbn', function(req, res) {
     }
 });
 
+// Agregar o modificar una reseña
+public_users.put('/auth/review/:isbn', (req, res) => {
+    const isbn = req.params.isbn;
+    const { review } = req.body;
+    const token = req.headers['authorization'] ? .split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token required' });
+    }
+
+    jwt.verify(token, 'fingerprint_customer', (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+
+        const username = decoded.username; // Extraer el nombre de usuario del token
+
+        if (!books[isbn]) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        if (!review) {
+            return res.status(400).json({ message: 'Review content required' });
+        }
+
+        if (!books[isbn].reviews) {
+            books[isbn].reviews = {};
+        }
+
+        books[isbn].reviews[username] = review;
+
+        return res.status(200).json({ message: 'Review added or updated successfully' });
+    });
+});
+//Eliminar una reseña
+public_users.delete('/auth/review/:isbn', (req, res) => {
+    const isbn = req.params.isbn;
+    const token = req.headers['authorization'] ? .split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Authorization token required' });
+    }
+
+    jwt.verify(token, 'fingerprint_customer', (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid or expired token' });
+        }
+
+        const username = decoded.username;
+        if (!books[isbn]) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+        if (!books[isbn].reviews) {
+            books[isbn].reviews = {};
+        }
+        delete books[isbn].reviews[username];
+        return res.status(200).json({ message: 'Review deleted successfully' });
+    });
+});
 
 module.exports.general = public_users;
